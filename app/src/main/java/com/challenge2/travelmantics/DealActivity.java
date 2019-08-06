@@ -47,10 +47,10 @@ public class DealActivity extends AppCompatActivity {
         setContentView(R.layout.activity_deal);
         mFirebaseDatabase = FirebaseUtil.mFirebaseDatabase;
         mDatabaseReference = FirebaseUtil.mDatabaseReference;
-        txtTitle = (EditText) findViewById(R.id.txtTitle);
-        txtDescription = (EditText) findViewById(R.id.txtDescription);
-        txtPrice = (EditText) findViewById(R.id.txtPrice);
-        imageView = (ImageView) findViewById(R.id.image);
+        txtTitle = findViewById(R.id.txtTitle);
+        txtDescription = findViewById(R.id.txtDescription);
+        txtPrice = findViewById(R.id.txtPrice);
+        imageView = findViewById(R.id.image);
         Intent intent = getIntent();
         TravelDeal deal = (TravelDeal) intent.getSerializableExtra("Deal");
         if (deal == null) {
@@ -61,21 +61,25 @@ public class DealActivity extends AppCompatActivity {
         txtDescription.setText(deal.getDescription());
         txtPrice.setText(deal.getPrice());
         showImage(deal.getImageUrl());
-        Button btnImage = findViewById(R.id.btnImage);
+        final Button btnImage = findViewById(R.id.btnImage);
+        if(FirebaseUtil.isAdmin){
+            btnImage.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            btnImage.setVisibility(View.INVISIBLE);
+        }
         btnImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(intent.createChooser(intent,
-                        "Insert Picture"), PICTURE_RESULT);
-
-            }
+                  Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                  intent.setType("image/jpeg");
+                  intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                  startActivityForResult(Intent.createChooser(intent,
+                          "Insert Picture"), PICTURE_RESULT);
+              }
         });
-
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -88,6 +92,7 @@ public class DealActivity extends AppCompatActivity {
             case R.id.delete_menu:
                 deleteDeal();
                 Toast.makeText(this, "Deal deleted", Toast.LENGTH_LONG).show();
+                clean();
                 backToList();
                 return true;
             default:
@@ -109,7 +114,6 @@ public class DealActivity extends AppCompatActivity {
             menu.findItem(R.id.save_menu).setVisible(false);
             enableEditText(false);
         }
-
         return true;
     }
 
@@ -123,18 +127,22 @@ public class DealActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                    String url = ref.getDownloadUrl().toString();
-                    //String url = taskSnapshot.getDownloadUrl().toString();
+                    Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                    while(!urlTask.isSuccessful());
+                    Uri urls = urlTask.getResult();
+                    final String ruurl = String.valueOf(urls);
+               //     String url = ref.getDownloadUrl().toString();
                     String pictureName = taskSnapshot.getStorage().getPath();
-                    deal.setImageUrl(url);
-                  deal.setImageName(pictureName);
-                    Log.d("Url: ", url);
+                    deal.setImageUrl(ruurl);
+                    deal.setImageName(pictureName);
+                    Log.d("Url: ", ruurl);
                     Log.d("Name", pictureName);
-                    showImage(url);
+                    showImage(ruurl);
                 }
             });
 
         }
+        return;
     }
 
     private void saveDeal() {
@@ -146,6 +154,7 @@ public class DealActivity extends AppCompatActivity {
         } else {
             mDatabaseReference.child(deal.getId()).setValue(deal);
         }
+        return;
     }
     private void deleteDeal(){
         if (deal==null){
@@ -168,11 +177,14 @@ public class DealActivity extends AppCompatActivity {
                 }
             });
         }
+        return;
     }
 
     private void backToList(){
         Intent intent = new Intent (this, ListActivity.class);
         startActivity(intent);
+        finish();
+        return;
     }
     private void clean(){
         txtTitle.setText("");
@@ -196,5 +208,11 @@ public class DealActivity extends AppCompatActivity {
                     .centerCrop()
                     .into(imageView);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        backToList();
     }
 }

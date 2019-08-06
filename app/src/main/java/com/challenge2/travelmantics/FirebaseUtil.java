@@ -1,6 +1,8 @@
 package com.challenge2.travelmantics;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -35,7 +37,7 @@ public class FirebaseUtil {
     public static ArrayList<TravelDeal> mDeals;
     public static boolean isAdmin;
 
-    private FirebaseUtil(){};
+    private FirebaseUtil(){}
 
     public static void openFbReference(String ref, final ListActivity callerActivity) {
         if (firebaseUtil == null) {
@@ -48,12 +50,14 @@ public class FirebaseUtil {
                 public void onAuthStateChanged(FirebaseAuth firebaseAuth) {
                     if(firebaseAuth.getCurrentUser()==null){
                         FirebaseUtil.signIn();
+                        return;
                     }
                     else {
                         String userId = firebaseAuth.getUid();
                         checkAdmin(userId);
                     }
                     Toast.makeText(callerActivity.getBaseContext(), "Welcome Back", Toast.LENGTH_LONG).show();
+                    return;
                 }
             };
             connectStorage();
@@ -75,6 +79,7 @@ public class FirebaseUtil {
                         .setIsSmartLockEnabled(false)
                         .build(),
                 RC_SIGN_IN);
+
     }
 
     private static void checkAdmin(String uid){

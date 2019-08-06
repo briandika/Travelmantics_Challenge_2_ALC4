@@ -30,7 +30,6 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
     }
 
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.list_activity_menu, menu);
@@ -63,6 +62,7 @@ public class ListActivity extends AppCompatActivity {
                 FirebaseUtil.detachListener();
                 return true;
         }
+        finish();
         return super.onOptionsItemSelected(item);
     }
 
@@ -76,7 +76,7 @@ public class ListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         FirebaseUtil.openFbReference("traveldeals",this);
-        RecyclerView rvDeals = (RecyclerView)findViewById(R.id.rvDeals);
+        RecyclerView rvDeals = findViewById(R.id.rvDeals);
         final DealAdapter adapter = new DealAdapter();
         rvDeals.setAdapter(adapter);
         @SuppressLint("WrongConstant") LinearLayoutManager dealsLayoutManager =
@@ -88,5 +88,4 @@ public class ListActivity extends AppCompatActivity {
     public void showMenu(){
         invalidateOptionsMenu();
     }
-
 }

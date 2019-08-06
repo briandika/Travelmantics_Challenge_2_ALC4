@@ -4,64 +4,79 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DealActivity">
-
+    tools:context="com.challenge2.travelmantics.DealActivity">
 
 
     <EditText
         android:id="@+id/txtTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/text_margin_standard"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="@dimen/text_margin_standard"
         android:hint="@string/title_hint"
+        android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="Autofill" />
 
     <EditText
         android:id="@+id/txtPrice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/price_hint"
+        android:layout_marginEnd="@dimen/text_margin_standard"
+        android:layout_marginStart="@dimen/text_margin_standard"
+        android:layout_marginTop="@dimen/text_margin_standard"
         android:inputType="numberDecimal"
+        android:hint="@string/price_hint"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/txtTitle"
+        tools:ignore="Autofill" />
 
     <EditText
         android:id="@+id/txtDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/text_margin_standard"
+        android:layout_marginStart="@dimen/text_margin_standard"
+        android:layout_marginTop="@dimen/text_margin_standard"
+        android:inputType="text"
         android:hint="@string/description_hint"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtPrice">
-
-    </EditText>
+        app:layout_constraintTop_toBottomOf="@+id/txtPrice"
+        tools:ignore="Autofill" />
 
     <Button
         android:id="@+id/btnImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="@dimen/text_margin_standard"
+        android:layout_marginStart="@dimen/text_margin_standard"
+        android:layout_marginTop="@dimen/text_margin_standard"
+        android:visibility="gone"
         android:text="Upload Image"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtDescription" />
+        app:layout_constraintTop_toBottomOf="@+id/txtDescription"
+        tools:ignore="HardcodedText" />
 
     <ImageView
         android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="@dimen/text_margin_standard"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnImage"
         app:srcCompat="@android:color/transparent"
-        tools:layout_editor_absoluteY="356dp"
-        app:layout_constraintTop_toBottomOf="@+id/btnImage" />
+        tools:ignore="ContentDescription" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
