@@ -35,26 +35,25 @@ import java.util.Objects;
 public class DealActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseReference;
-    private static final int PICTURE_RESULT = 42;
+    private static final int PICTURE_RESULT = 42; //the answer to everything
     EditText txtTitle;
     EditText txtDescription;
     EditText txtPrice;
-    TravelDeal deal;
     ImageView imageView;
-
+    TravelDeal deal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deal);
         mFirebaseDatabase = FirebaseUtil.mFirebaseDatabase;
         mDatabaseReference = FirebaseUtil.mDatabaseReference;
-        txtTitle = findViewById(R.id.txtTitle);
-        txtDescription = findViewById(R.id.txtDescription);
-        txtPrice = findViewById(R.id.txtPrice);
-        imageView = findViewById(R.id.image);
+        txtTitle = (EditText) findViewById(R.id.txtTitle);
+        txtDescription = (EditText) findViewById(R.id.txtDescription);
+        txtPrice = (EditText) findViewById(R.id.txtPrice);
+        imageView = (ImageView) findViewById(R.id.image);
         Intent intent = getIntent();
         TravelDeal deal = (TravelDeal) intent.getSerializableExtra("Deal");
-        if (deal == null) {
+        if (deal==null) {
             deal = new TravelDeal();
         }
         this.deal = deal;
@@ -62,23 +61,16 @@ public class DealActivity extends AppCompatActivity {
         txtDescription.setText(deal.getDescription());
         txtPrice.setText(deal.getPrice());
         showImage(deal.getImageUrl());
-        final Button btnImage = findViewById(R.id.btnImage);
-        if(FirebaseUtil.isAdmin){
-            btnImage.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            btnImage.setVisibility(View.INVISIBLE);
-        }
+        Button btnImage = findViewById(R.id.btnImage);
         btnImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                  Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                  intent.setType("image/jpeg");
-                  intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                  startActivityForResult(Intent.createChooser(intent,
-                          "Insert Picture"), PICTURE_RESULT);
-              }
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(intent.createChooser(intent,
+                        "Insert Picture"), PICTURE_RESULT);
+            }
         });
     }
     @Override
@@ -92,16 +84,15 @@ public class DealActivity extends AppCompatActivity {
                 return true;
             case R.id.delete_menu:
                 deleteDeal();
-                Toast.makeText(this, "Deal deleted", Toast.LENGTH_LONG).show();
-                clean();
+                Toast.makeText(this, "Deal Deleted", Toast.LENGTH_LONG).show();
                 backToList();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+
         }
 
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -109,12 +100,15 @@ public class DealActivity extends AppCompatActivity {
         if (FirebaseUtil.isAdmin) {
             menu.findItem(R.id.delete_menu).setVisible(true);
             menu.findItem(R.id.save_menu).setVisible(true);
-            enableEditText(true);
-        } else {
+            enableEditTexts(true);
+        }
+        else {
             menu.findItem(R.id.delete_menu).setVisible(false);
             menu.findItem(R.id.save_menu).setVisible(false);
-            enableEditText(false);
+            enableEditTexts(false);
         }
+
+
         return true;
     }
 
@@ -128,37 +122,33 @@ public class DealActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                    Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                    while(!urlTask.isSuccessful());
-                    Uri urls = urlTask.getResult();
-                    final String ruurl = String.valueOf(urls);
-               //     String url = ref.getDownloadUrl().toString();
+                    String url = ref.getDownloadUrl().toString();
+                    //String url = taskSnapshot.getDownloadUrl().toString();
                     String pictureName = taskSnapshot.getStorage().getPath();
-                    deal.setImageUrl(ruurl);
+                    deal.setImageUrl(url);
                     deal.setImageName(pictureName);
-                    Log.d("Url: ", ruurl);
+                    Log.d("Url: ", url);
                     Log.d("Name", pictureName);
-                    showImage(ruurl);
+                    showImage(url);
                 }
             });
 
         }
-        return;
     }
 
     private void saveDeal() {
         deal.setTitle(txtTitle.getText().toString());
         deal.setDescription(txtDescription.getText().toString());
         deal.setPrice(txtPrice.getText().toString());
-        if (deal.getId() == null) {
+        if(deal.getId()==null) {
             mDatabaseReference.push().setValue(deal);
-        } else {
+        }
+        else {
             mDatabaseReference.child(deal.getId()).setValue(deal);
         }
-        return;
     }
-    private void deleteDeal(){
-        if (deal==null){
+    private void deleteDeal() {
+        if (deal == null) {
             Toast.makeText(this, "Please save the deal before deleting", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -178,24 +168,19 @@ public class DealActivity extends AppCompatActivity {
                 }
             });
         }
-        return;
-    }
 
-    private void backToList(){
-        Intent intent = new Intent (this, ListActivity.class);
+    }
+    private void backToList() {
+        Intent intent = new Intent(this, ListActivity.class);
         startActivity(intent);
-        finish();
-        return;
     }
-    private void clean(){
+    private void clean() {
         txtTitle.setText("");
-        txtDescription.setText("");
         txtPrice.setText("");
+        txtDescription.setText("");
         txtTitle.requestFocus();
-
     }
-
-    private void enableEditText(boolean isEnabled){
+    private void enableEditTexts(boolean isEnabled) {
         txtTitle.setEnabled(isEnabled);
         txtDescription.setEnabled(isEnabled);
         txtPrice.setEnabled(isEnabled);
@@ -214,6 +199,5 @@ public class DealActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        backToList();
     }
 }

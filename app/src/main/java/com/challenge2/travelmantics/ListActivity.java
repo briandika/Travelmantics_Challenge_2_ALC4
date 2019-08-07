@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,7 +25,7 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
     }
-
+//menu items, enable New Travel Deal to save new travel deals if user is an admin
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.list_activity_menu, menu);
@@ -38,12 +39,14 @@ public class ListActivity extends AppCompatActivity {
         return true;
     }
 
+    //Save new deal and Logout
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.insert_menu:
                 Intent intent = new Intent(this, DealActivity.class);
                 startActivity(intent);
+                finish();
                 return true;
             case R.id.logout_menu:
                 AuthUI.getInstance()
@@ -57,7 +60,6 @@ public class ListActivity extends AppCompatActivity {
                 FirebaseUtil.detachListener();
                 return true;
         }
-        finish();
         return super.onOptionsItemSelected(item);
     }
 
