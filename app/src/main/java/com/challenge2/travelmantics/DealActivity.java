@@ -35,12 +35,13 @@ import java.util.Objects;
 public class DealActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseReference;
-    private static final int PICTURE_RESULT = 42; //the answer to everything
+    private static final int PICTURE_RESULT = 42;
     EditText txtTitle;
     EditText txtDescription;
     EditText txtPrice;
-    ImageView imageView;
     TravelDeal deal;
+    ImageView imageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +54,7 @@ public class DealActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.image);
         Intent intent = getIntent();
         TravelDeal deal = (TravelDeal) intent.getSerializableExtra("Deal");
-        if (deal==null) {
+        if (deal == null) {
             deal = new TravelDeal();
         }
         this.deal = deal;
@@ -61,7 +62,14 @@ public class DealActivity extends AppCompatActivity {
         txtDescription.setText(deal.getDescription());
         txtPrice.setText(deal.getPrice());
         showImage(deal.getImageUrl());
-        Button btnImage = findViewById(R.id.btnImage);
+        final Button btnImage = findViewById(R.id.btnImage);
+        if(FirebaseUtil.isAdmin){
+            btnImage.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            btnImage.setVisibility(View.INVISIBLE);
+        }
         btnImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,15 +92,16 @@ public class DealActivity extends AppCompatActivity {
                 return true;
             case R.id.delete_menu:
                 deleteDeal();
-                Toast.makeText(this, "Deal Deleted", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Deal deleted", Toast.LENGTH_LONG).show();
+                clean();
                 backToList();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-
         }
 
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -100,15 +109,12 @@ public class DealActivity extends AppCompatActivity {
         if (FirebaseUtil.isAdmin) {
             menu.findItem(R.id.delete_menu).setVisible(true);
             menu.findItem(R.id.save_menu).setVisible(true);
-            enableEditTexts(true);
-        }
-        else {
+            enableEditText(true);
+        } else {
             menu.findItem(R.id.delete_menu).setVisible(false);
             menu.findItem(R.id.save_menu).setVisible(false);
-            enableEditTexts(false);
+            enableEditText(false);
         }
-
-
         return true;
     }
 
@@ -122,33 +128,37 @@ public class DealActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                    String url = ref.getDownloadUrl().toString();
-                    //String url = taskSnapshot.getDownloadUrl().toString();
+                    Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                    while(!urlTask.isSuccessful());
+                    Uri urls = urlTask.getResult();
+                    final String ruurl = String.valueOf(urls);
+                    //     String url = ref.getDownloadUrl().toString();
                     String pictureName = taskSnapshot.getStorage().getPath();
-                    deal.setImageUrl(url);
+                    deal.setImageUrl(ruurl);
                     deal.setImageName(pictureName);
-                    Log.d("Url: ", url);
+                    Log.d("Url: ", ruurl);
                     Log.d("Name", pictureName);
-                    showImage(url);
+                    showImage(ruurl);
                 }
             });
 
         }
+        return;
     }
 
     private void saveDeal() {
         deal.setTitle(txtTitle.getText().toString());
         deal.setDescription(txtDescription.getText().toString());
         deal.setPrice(txtPrice.getText().toString());
-        if(deal.getId()==null) {
+        if (deal.getId() == null) {
             mDatabaseReference.push().setValue(deal);
-        }
-        else {
+        } else {
             mDatabaseReference.child(deal.getId()).setValue(deal);
         }
+        return;
     }
-    private void deleteDeal() {
-        if (deal == null) {
+    private void deleteDeal(){
+        if (deal==null){
             Toast.makeText(this, "Please save the deal before deleting", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -168,19 +178,24 @@ public class DealActivity extends AppCompatActivity {
                 }
             });
         }
+        return;
+    }
+
+    private void backToList(){
+        Intent intent = new Intent (this, ListActivity.class);
+        startActivity(intent);
+        finish();
+        return;
+    }
+    private void clean(){
+        txtTitle.setText("");
+        txtDescription.setText("");
+        txtPrice.setText("");
+        txtTitle.requestFocus();
 
     }
-    private void backToList() {
-        Intent intent = new Intent(this, ListActivity.class);
-        startActivity(intent);
-    }
-    private void clean() {
-        txtTitle.setText("");
-        txtPrice.setText("");
-        txtDescription.setText("");
-        txtTitle.requestFocus();
-    }
-    private void enableEditTexts(boolean isEnabled) {
+
+    private void enableEditText(boolean isEnabled){
         txtTitle.setEnabled(isEnabled);
         txtDescription.setEnabled(isEnabled);
         txtPrice.setEnabled(isEnabled);
@@ -199,5 +214,6 @@ public class DealActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        backToList();
     }
 }
